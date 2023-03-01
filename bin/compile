@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Find all the directories we might need (based on
+# heroku-buildpack-nodejs code).
+BUILD_DIR=${1:-}
+CACHE_DIR=${2:-}
+ENV_DIR=${3:-}
+BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
+
+# Set defaults for our configuration variables.  Stable Rust is sufficiently
+# stable at this point that I think we can just default it.
+VERSION=stable
+
+# Standard paranoia.
+set -eu
+
+cat <<EOF > $BP_DIR/export
+# rustup installation.
+export RUSTUP_HOME="$CACHE_DIR/multirust"
+# Rust configuration.
+export CARGO_HOME=$BUILD_DIR/.cargo
+export PATH="\$BUILD_DIR/.cargo/bin:\$PATH"
+EOF
+
+mkdir -p $BUILD_DIR/.profile.d
+
+cat <<EOF > $BUILD_DIR/.profile.d/rust.sh
+# Rust configuration.
+export CARGO_HOME=\$HOME/.cargo
+export PATH="\$HOME/.cargo/bin:\$PATH"
+EOF
+
+
+# Read our build environment back in and evaluate it so that we can use it.
+. $BP_DIR/export
+
+# Make sure we have an appropriate Rust toolchain installed.
+if [ -d "$RUSTUP_HOME" ]; then
+  echo "-----> Checking for new releases of Rust $VERSION channel"
+  # It's possible that $VERSION has changed, or the `stable` channel has updated.
+  rustup self update
+  rustup update "$VERSION"
+  rustup default "$VERSION"
+else
+  echo "-----> Downloading rustup"
+  curl https://sh.rustup.rs -sSf > rustup.sh
+  chmod u+x rustup.sh
+  echo "-----> Using rustup to install Rust channel $VERSION"
+  ./rustup.sh -y --default-toolchain "$VERSION"
+  rm rustup.sh
+fi
+
+if [ ! -x "$CARGO_HOME/bin/rustc" ]; then
+  echo "failed: Cannot find Rust binaries at $CARGO_HOME"
+  exit 1
+fi
+
+if [ -f "$BUILD_DIR/Cargo.toml" ]; then
+  echo "-----> Building application using Cargo.toml"
+  cd "$BUILD_DIR"
+  cargo install --path .
+else
+  echo "-----> Installing metaboss"
+  cargo install metaboss
+fi
+
+echo "-----> Done building application"
