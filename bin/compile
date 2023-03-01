@@ -56,15 +56,9 @@ if [ ! -x "$CARGO_HOME/bin/rustc" ]; then
   exit 1
 fi
 
+echo "-----> Installing metaboss"
+cargo install metaboss
 
-if [ -f "$BUILD_DIR/Cargo.toml" ]; then
-  echo "-----> Building application using Cargo.toml"
-  cd "$BUILD_DIR"
-  cargo install --path .
-else
-  echo "-----> Installing metaboss"
-  cargo install metaboss
-fi
 
 cp "$CACHE_DIR/.cargo/bin/metaboss" "$BUILD_DIR/.cargo/bin/metaboss"
 
