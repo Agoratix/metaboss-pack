@@ -60,8 +60,4 @@ export CARGO_INSTALL_ROOT="$BUILD_DIR/.cargo"
 
 echo "-----> Installing metaboss"
 cargo install metaboss
-
-
-cp "$CACHE_DIR/.cargo/bin/metaboss" "$BUILD_DIR/.cargo/bin/metaboss"
-
 echo "-----> Done building application"
