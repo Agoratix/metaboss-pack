@@ -18,12 +18,12 @@ cat <<EOF > $BP_DIR/export
 # rustup installation.
 export RUSTUP_HOME="$CACHE_DIR/multirust"
 # Rust configuration.
-export CARGO_HOME=$CACHE_DIR/.cargo
-export PATH="\$CACHE_DIR/.cargo/bin:\$PATH"
+export CARGO_HOME=$BUILD_DIR/.cargo
+export PATH="\$BUILD_DIR/.cargo/bin:\$PATH"
 EOF
 
 mkdir -p $BUILD_DIR/.profile.d
-mkdir -p $BUILD_DIR/.cargo
+# mkdir -p $BUILD_DIR/.cargo
 
 cat <<EOF > $BUILD_DIR/.profile.d/rust.sh
 # Rust configuration.
