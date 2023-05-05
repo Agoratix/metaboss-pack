@@ -3,5 +3,5 @@
 cat << EOF
 ---
 config_vars:
-  PATH: "${PATH}:/app/vendor/metaboss/"
+  PATH: "${PATH}:/app/vendor/metaboss/bin/"
 EOF
