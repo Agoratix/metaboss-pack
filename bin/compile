@@ -1,63 +1,15 @@
 #!/bin/bash
 
-# Find all the directories we might need (based on
-# heroku-buildpack-nodejs code).
-BUILD_DIR=${1:-}
-CACHE_DIR=${2:-}
-ENV_DIR=${3:-}
-BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
+BUILD_DIR=$1
+DOWNLOAD_URL=https://github.com/samuelvanderwaal/metaboss/releases/latest/download/metaboss-ubuntu-latest
+OUTPUT_NAME=metaboss
+INSTALL_DIR=vendor/metaboss/bin
 
-# Set defaults for our configuration variables.  Stable Rust is sufficiently
-# stable at this point that I think we can just default it.
-VERSION=1.68.2
+echo "Download URL: $DOWNLOAD_URL..."
+echo "Downloading binary from $DOWNLOAD_URL as $OUTPUT_NAME..."
 
-# Standard paranoia.
-set -eu
+mkdir -p $BUILD_DIR/$INSTALL_DIR
+curl -f -L $DOWNLOAD_URL -o $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
+chmod u+x $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
 
-cat <<EOF > $BP_DIR/export
-# rustup installation.
-export RUSTUP_HOME="$CACHE_DIR/multirust"
-# Rust configuration.
-export CARGO_HOME=$CACHE_DIR/.cargo
-export PATH="\$CACHE_DIR/.cargo/bin:\$PATH"
-EOF
-
-mkdir -p $BUILD_DIR/.profile.d
-
-cat <<EOF > $BUILD_DIR/.profile.d/rust.sh
-# Rust configuration.
-export CARGO_HOME=\$HOME/.cargo
-export PATH="\$HOME/.cargo/bin:\$PATH"
-EOF
-
-
-# Read our build environment back in and evaluate it so that we can use it.
-. $BP_DIR/export
-
-# Make sure we have an appropriate Rust toolchain installed.
-if [ -d "$RUSTUP_HOME" ]; then
-  echo "-----> Checking for new releases of Rust $VERSION channel"
-  # It's possible that $VERSION has changed, or the `stable` channel has updated.
-  rustup self update
-  rustup update "$VERSION"
-  rustup default "$VERSION"
-else
-  echo "-----> Downloading rustup"
-  curl https://sh.rustup.rs -sSf > rustup.sh
-  chmod u+x rustup.sh
-  echo "-----> Using rustup to install Rust channel $VERSION"
-  ./rustup.sh -y --default-toolchain "$VERSION"
-  rm rustup.sh
-fi
-
-if [ ! -x "$CARGO_HOME/bin/rustc" ]; then
-  echo "failed: Cannot find Rust binaries at $CARGO_HOME"
-  exit 1
-fi
-
-mkdir -p "$BUILD_DIR/.cargo/bin"
-export CARGO_INSTALL_ROOT="$BUILD_DIR/.cargo"
-
-echo "-----> Installing metaboss"
-cargo install metaboss --version 0.23.0
-echo "-----> Done building application"
+echo "Done downloading metaboss..."
