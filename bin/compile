@@ -5,11 +5,10 @@ DOWNLOAD_URL=https://github.com/samuelvanderwaal/metaboss/releases/latest/downlo
 OUTPUT_NAME=metaboss
 INSTALL_DIR=vendor/metaboss/bin
 
-echo "Download URL: $DOWNLOAD_URL..."
 echo "Downloading binary from $DOWNLOAD_URL as $OUTPUT_NAME..."
 
 mkdir -p $BUILD_DIR/$INSTALL_DIR
-curl -f -L $DOWNLOAD_URL -o $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
+curl -f -s -L $DOWNLOAD_URL -o $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
 chmod u+x $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
 
 echo "Done downloading metaboss..."
