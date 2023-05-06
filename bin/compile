@@ -9,6 +9,14 @@ echo "Downloading binary from $DOWNLOAD_URL as $OUTPUT_NAME..."
 
 mkdir -p $BUILD_DIR/$INSTALL_DIR
 curl -f -s -L $DOWNLOAD_URL -o $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
-chmod u+x $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
 
 echo "Done downloading metaboss..."
+
+chmod u+x $BUILD_DIR/$INSTALL_DIR/$OUTPUT_NAME
+
+echo "exporting bin to PATH"
+PROFILE_PATH="$BUILD_DIR/.profile.d/metaboss.sh"
+mkdir -p $(dirname $PROFILE_PATH)
+echo 'export PATH="$PATH:$HOME/vendor/metaboss/bin"' >> $PROFILE_PATH
+
+echo "Done setting up metaboss..."
